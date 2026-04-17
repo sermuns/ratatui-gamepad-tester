@@ -13,12 +13,12 @@ use ratatui::{
 };
 use std::{io, time::Duration};
 
-use crate::gamepad::ActiveGamepad;
+use crate::gamepad::Gamepad;
 
 pub struct App {
     gilrs: Gilrs,
     running: bool,
-    gamepad: ActiveGamepad,
+    gamepad: Gamepad,
     show_debug_info: bool,
 }
 

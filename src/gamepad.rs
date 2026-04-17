@@ -1,12 +1,12 @@
 use gilrs::Button;
 
 #[derive(Default, Debug)]
-pub struct ActiveGamepad {
+pub struct Gamepad {
     pub axises: Axises,
     pub buttons: Buttons,
 }
 
-impl ActiveGamepad {
+impl Gamepad {
     const STICK_ACTIVATION_HYPOT: f32 = 0.1;
 
     pub fn left_stick_active(&self) -> bool {
@@ -53,7 +53,7 @@ pub struct Buttons {
     pub d_pad_right: bool,
 }
 
-impl ActiveGamepad {
+impl Gamepad {
     pub fn set_button_value(&mut self, button: Button, value: bool) {
         match button {
             Button::South => self.buttons.south = value,
