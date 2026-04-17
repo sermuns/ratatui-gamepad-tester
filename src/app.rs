@@ -113,8 +113,8 @@ impl Widget for &App {
 
         Canvas::default()
             .block(block)
-            .x_bounds([-50., 50.])
-            .y_bounds([-50., 50.])
+            .x_bounds([-45., 45.])
+            .y_bounds([-13., 25.])
             .paint(|ctx| {
                 const CONTROLLER_TOP_Y: f64 = 12.;
                 const CONTROLLER_TOP_X: f64 = 23.;
