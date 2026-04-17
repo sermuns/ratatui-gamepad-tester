@@ -260,6 +260,7 @@ impl Widget for &App {
                         Color::DarkGray
                     },
                 ));
+
                 // action pad
                 ctx.draw(&Circle::new(
                     17.5,
@@ -302,6 +303,30 @@ impl Widget for &App {
                     },
                 ));
 
+                // start/select
+                ctx.draw(&Rectangle::new(
+                    -5.,
+                    5.,
+                    3.,
+                    1.5,
+                    if self.gamepad.buttons.select {
+                        Color::Yellow
+                    } else {
+                        Color::DarkGray
+                    },
+                ));
+                ctx.draw(&Rectangle::new(
+                    2.,
+                    5.,
+                    3.,
+                    1.5,
+                    if self.gamepad.buttons.start {
+                        Color::Yellow
+                    } else {
+                        Color::DarkGray
+                    },
+                ));
+
                 const JOYSTICK_MOVEMENT: f64 = 1.5;
 
                 let mut left_joystick = Circle::new(-10., 0., 3., Color::DarkGray);
@@ -309,8 +334,10 @@ impl Widget for &App {
                 left_joystick.x += JOYSTICK_MOVEMENT * self.gamepad.axises.left_stick_x as f64;
                 left_joystick.y += JOYSTICK_MOVEMENT * self.gamepad.axises.left_stick_y as f64;
                 left_joystick.radius = 2.;
-                left_joystick.color = if self.gamepad.left_stick_active() {
+                left_joystick.color = if self.gamepad.buttons.left_thumb {
                     Color::Yellow
+                } else if self.gamepad.left_stick_active() {
+                    Color::Cyan
                 } else {
                     Color::White
                 };
@@ -321,8 +348,10 @@ impl Widget for &App {
                 right_joystick.x += JOYSTICK_MOVEMENT * self.gamepad.axises.right_stick_x as f64;
                 right_joystick.y += JOYSTICK_MOVEMENT * self.gamepad.axises.right_stick_y as f64;
                 right_joystick.radius = 2.;
-                right_joystick.color = if self.gamepad.right_stick_active() {
+                right_joystick.color = if self.gamepad.buttons.right_thumb {
                     Color::Yellow
+                } else if self.gamepad.right_stick_active() {
+                    Color::Cyan
                 } else {
                     Color::White
                 };
