@@ -1,4 +1,4 @@
-use gilrs::{Button, Gamepad, Gilrs};
+use gilrs::{Button, Gilrs};
 use ratatui::{
     DefaultTerminal,
     crossterm::{
@@ -6,9 +6,8 @@ use ratatui::{
         event::{KeyCode, KeyEvent, KeyEventKind, KeyModifiers},
     },
     prelude::*,
-    symbols::border,
     widgets::{
-        Block, Clear, Paragraph,
+        Block, Paragraph,
         canvas::{Canvas, Circle, Rectangle},
     },
 };
@@ -18,6 +17,7 @@ pub struct App {
     gilrs: Gilrs,
     running: bool,
     gamepad: ActiveGamepad,
+    show_debug_info: bool,
 }
 
 #[derive(Default, Debug)]
@@ -107,6 +107,7 @@ impl App {
         Self {
             gilrs: Gilrs::new().unwrap(),
             running: true,
+            show_debug_info: false,
             gamepad: Default::default(),
         }
     }
@@ -165,6 +166,7 @@ impl App {
             KeyCode::Char('c') if key_event.modifiers == KeyModifiers::CONTROL => {
                 self.running = false
             }
+            KeyCode::Char('d') => self.show_debug_info = !self.show_debug_info,
             _ => {}
         }
     }
@@ -178,14 +180,19 @@ impl Widget for &App {
     fn render(self, area: Rect, buf: &mut Buffer) {
         let title = Line::from(concat!(" ", env!("CARGO_PKG_NAME"), " ").bold());
 
-        // let debug_title = format!("{:#?}", self.active_gamepad);
-        //
-        // Paragraph::new(debug_title)
-        //     .block(Block::bordered().title(title.centered()))
-        //     .render(area, buf);
+        let block = Block::bordered()
+            .title(title.centered())
+            .title_bottom(" quit: 'q', debug info: 'd' ".dim().into_centered_line());
+
+        if self.show_debug_info {
+            Paragraph::new(format!("{:#?}", self.gamepad))
+                .block(block)
+                .render(area, buf);
+            return;
+        }
 
         Canvas::default()
-            .block(Block::bordered().title(title.centered()))
+            .block(block)
             .x_bounds([-50., 50.])
             .y_bounds([-50., 50.])
             .paint(|ctx| {
