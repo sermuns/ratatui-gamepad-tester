@@ -1,4 +1,4 @@
-use gilrs::{Button, Gilrs};
+use gilrs::Gilrs;
 use ratatui::{
     DefaultTerminal,
     crossterm::{
@@ -8,7 +8,7 @@ use ratatui::{
     prelude::*,
     widgets::{
         Block, Paragraph,
-        canvas::{Canvas, Circle, Rectangle},
+        canvas::{Canvas, Circle, Line as CLine, Rectangle},
     },
 };
 use std::{io, time::Duration};
@@ -116,22 +116,166 @@ impl Widget for &App {
             .x_bounds([-50., 50.])
             .y_bounds([-50., 50.])
             .paint(|ctx| {
-                ctx.draw(&Rectangle::new(-20., -5., 40., 12., Color::DarkGray));
+                const CONTROLLER_TOP_Y: f64 = 12.;
+                const CONTROLLER_TOP_X: f64 = 23.;
+                const CONTROLLER_BOTTOM_Y: f64 = -5.;
+                const CONTROLLER_BOTTOM_X: f64 = 15.;
+                const HANDLE_BOTTOM_Y: f64 = -10.;
+                const HANDLE_BOTTOM_X: f64 = 30.;
+
+                // top
+                ctx.draw(&CLine::new(
+                    -CONTROLLER_TOP_X,
+                    CONTROLLER_TOP_Y,
+                    CONTROLLER_TOP_X,
+                    CONTROLLER_TOP_Y,
+                    Color::DarkGray,
+                ));
+                // bottom
+                ctx.draw(&CLine::new(
+                    -CONTROLLER_BOTTOM_X,
+                    CONTROLLER_BOTTOM_Y,
+                    CONTROLLER_BOTTOM_X,
+                    CONTROLLER_BOTTOM_Y,
+                    Color::DarkGray,
+                ));
+                // left handle
+                ctx.draw(&CLine::new(
+                    -CONTROLLER_TOP_X,
+                    CONTROLLER_TOP_Y,
+                    -HANDLE_BOTTOM_X,
+                    HANDLE_BOTTOM_Y,
+                    Color::DarkGray,
+                ));
+                ctx.draw(&CLine::new(
+                    -CONTROLLER_BOTTOM_X,
+                    CONTROLLER_BOTTOM_Y,
+                    -HANDLE_BOTTOM_X,
+                    HANDLE_BOTTOM_Y,
+                    Color::DarkGray,
+                ));
+                // right handle
+                ctx.draw(&CLine::new(
+                    CONTROLLER_TOP_X,
+                    CONTROLLER_TOP_Y,
+                    HANDLE_BOTTOM_X,
+                    HANDLE_BOTTOM_Y,
+                    Color::DarkGray,
+                ));
+                ctx.draw(&CLine::new(
+                    CONTROLLER_BOTTOM_X,
+                    CONTROLLER_BOTTOM_Y,
+                    HANDLE_BOTTOM_X,
+                    HANDLE_BOTTOM_Y,
+                    Color::DarkGray,
+                ));
+                // d-pad
+                ctx.draw(&Circle::new(
+                    -17.5,
+                    8.5,
+                    1.1,
+                    if self.gamepad.buttons.d_pad_up {
+                        Color::Yellow
+                    } else {
+                        Color::DarkGray
+                    },
+                ));
+                ctx.draw(&Circle::new(
+                    -15.,
+                    6.,
+                    1.1,
+                    if self.gamepad.buttons.d_pad_right {
+                        Color::Yellow
+                    } else {
+                        Color::DarkGray
+                    },
+                ));
+                ctx.draw(&Circle::new(
+                    -20.,
+                    6.,
+                    1.1,
+                    if self.gamepad.buttons.d_pad_left {
+                        Color::Yellow
+                    } else {
+                        Color::DarkGray
+                    },
+                ));
+                ctx.draw(&Circle::new(
+                    -17.5,
+                    3.5,
+                    1.1,
+                    if self.gamepad.buttons.d_pad_down {
+                        Color::Yellow
+                    } else {
+                        Color::DarkGray
+                    },
+                ));
+                // action pad
+                ctx.draw(&Circle::new(
+                    17.5,
+                    8.5,
+                    1.1,
+                    if self.gamepad.buttons.north {
+                        Color::Yellow
+                    } else {
+                        Color::DarkGray
+                    },
+                ));
+                ctx.draw(&Circle::new(
+                    15.,
+                    6.,
+                    1.1,
+                    if self.gamepad.buttons.west {
+                        Color::Yellow
+                    } else {
+                        Color::DarkGray
+                    },
+                ));
+                ctx.draw(&Circle::new(
+                    20.,
+                    6.,
+                    1.1,
+                    if self.gamepad.buttons.east {
+                        Color::Yellow
+                    } else {
+                        Color::DarkGray
+                    },
+                ));
+                ctx.draw(&Circle::new(
+                    17.5,
+                    3.5,
+                    1.1,
+                    if self.gamepad.buttons.south {
+                        Color::Yellow
+                    } else {
+                        Color::DarkGray
+                    },
+                ));
+
+                const JOYSTICK_MOVEMENT: f64 = 1.5;
 
                 let mut left_joystick = Circle::new(-10., 0., 3., Color::DarkGray);
                 ctx.draw(&left_joystick);
-                left_joystick.x += 2. * self.gamepad.axises.left_stick_x as f64;
-                left_joystick.y += 2. * self.gamepad.axises.left_stick_y as f64;
+                left_joystick.x += JOYSTICK_MOVEMENT * self.gamepad.axises.left_stick_x as f64;
+                left_joystick.y += JOYSTICK_MOVEMENT * self.gamepad.axises.left_stick_y as f64;
                 left_joystick.radius = 2.;
-                left_joystick.color = Color::White;
+                left_joystick.color = if self.gamepad.left_stick_active() {
+                    Color::Yellow
+                } else {
+                    Color::White
+                };
                 ctx.draw(&left_joystick);
 
                 let mut right_joystick = Circle::new(10., 0., 3., Color::DarkGray);
                 ctx.draw(&right_joystick);
-                right_joystick.x += 2. * self.gamepad.axises.right_stick_x as f64;
-                right_joystick.y += 2. * self.gamepad.axises.right_stick_y as f64;
+                right_joystick.x += JOYSTICK_MOVEMENT * self.gamepad.axises.right_stick_x as f64;
+                right_joystick.y += JOYSTICK_MOVEMENT * self.gamepad.axises.right_stick_y as f64;
                 right_joystick.radius = 2.;
-                right_joystick.color = Color::White;
+                right_joystick.color = if self.gamepad.right_stick_active() {
+                    Color::Yellow
+                } else {
+                    Color::White
+                };
                 ctx.draw(&right_joystick);
             })
             .render(area, buf);

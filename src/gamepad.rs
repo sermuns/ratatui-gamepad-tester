@@ -6,6 +6,18 @@ pub struct ActiveGamepad {
     pub buttons: Buttons,
 }
 
+impl ActiveGamepad {
+    const STICK_ACTIVATION_HYPOT: f32 = 0.1;
+
+    pub fn left_stick_active(&self) -> bool {
+        self.axises.left_stick_x.hypot(self.axises.left_stick_y) > Self::STICK_ACTIVATION_HYPOT
+    }
+
+    pub fn right_stick_active(&self) -> bool {
+        self.axises.right_stick_x.hypot(self.axises.right_stick_y) > Self::STICK_ACTIVATION_HYPOT
+    }
+}
+
 #[derive(Default, Debug)]
 pub struct Axises {
     pub left_stick_x: f32,
