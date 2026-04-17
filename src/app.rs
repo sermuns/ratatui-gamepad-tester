@@ -342,6 +342,10 @@ impl Widget for &App {
                     Color::White
                 };
                 ctx.draw(&left_joystick);
+                if self.gamepad.buttons.left_thumb {
+                    left_joystick.radius = 1.;
+                    ctx.draw(&left_joystick);
+                }
 
                 let mut right_joystick = Circle::new(10., 0., 3., Color::DarkGray);
                 ctx.draw(&right_joystick);
@@ -356,6 +360,10 @@ impl Widget for &App {
                     Color::White
                 };
                 ctx.draw(&right_joystick);
+                if self.gamepad.buttons.right_thumb {
+                    right_joystick.radius = 1.;
+                    ctx.draw(&right_joystick);
+                }
             })
             .render(area, buf);
     }
