@@ -7,3 +7,6 @@ edition = "2024"
 ratatui = "0.30"
 gilrs = "0.11"
 color-eyre = "0.6"
+
+[lints.clippy]
+single_match = "allow"

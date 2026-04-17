@@ -3,39 +3,117 @@ use ratatui::{
     DefaultTerminal,
     crossterm::{
         self,
-        event::{KeyCode, KeyEvent, KeyEventKind},
+        event::{KeyCode, KeyEvent, KeyEventKind, KeyModifiers},
     },
     prelude::*,
     symbols::border,
-    widgets::{Block, Paragraph},
+    widgets::{
+        Block, Clear, Paragraph,
+        canvas::{Canvas, Circle, Rectangle},
+    },
 };
 use std::{io, time::Duration};
 
-// maybe insane to hardcode this..
-const MAX_NUM_GAMEPADS: usize = 16;
-
-pub struct App<'a> {
+pub struct App {
     gilrs: Gilrs,
-    gamepads: [Option<Gamepad<'a>>; MAX_NUM_GAMEPADS],
     running: bool,
+    gamepad: ActiveGamepad,
 }
 
-impl App<'_> {
+#[derive(Default, Debug)]
+struct ActiveGamepad {
+    axises: Axises,
+    buttons: Buttons,
+}
+
+#[derive(Default, Debug)]
+struct Axises {
+    left_stick_x: f32,
+    left_stick_y: f32,
+    left_z: f32,
+    right_stick_x: f32,
+    right_stick_y: f32,
+    right_z: f32,
+    d_pad_x: f32,
+    d_pad_y: f32,
+}
+
+#[derive(Default, Debug)]
+struct Buttons {
+    south: bool,
+    east: bool,
+    north: bool,
+    west: bool,
+    c: bool,
+    z: bool,
+    left_trigger: bool,
+    left_trigger2: bool,
+    right_trigger: bool,
+    right_trigger2: bool,
+    select: bool,
+    start: bool,
+    mode: bool,
+    left_thumb: bool,
+    righ_tthumb: bool,
+    d_pad_up: bool,
+    d_pad_down: bool,
+    d_pad_left: bool,
+    d_pad_right: bool,
+}
+
+impl ActiveGamepad {
+    fn set_button_value(&mut self, button: Button, value: bool) {
+        match button {
+            Button::South => self.buttons.south = value,
+            Button::East => self.buttons.east = value,
+            Button::North => self.buttons.north = value,
+            Button::West => self.buttons.west = value,
+            Button::C => self.buttons.c = value,
+            Button::Z => self.buttons.z = value,
+            Button::LeftTrigger => self.buttons.left_trigger = value,
+            Button::LeftTrigger2 => self.buttons.left_trigger2 = value,
+            Button::RightTrigger => self.buttons.right_trigger = value,
+            Button::RightTrigger2 => self.buttons.right_trigger2 = value,
+            Button::Select => self.buttons.select = value,
+            Button::Start => self.buttons.start = value,
+            Button::Mode => self.buttons.mode = value,
+            Button::LeftThumb => self.buttons.left_thumb = value,
+            Button::RightThumb => self.buttons.righ_tthumb = value,
+            Button::DPadUp => self.buttons.d_pad_up = value,
+            Button::DPadDown => self.buttons.d_pad_down = value,
+            Button::DPadLeft => self.buttons.d_pad_left = value,
+            Button::DPadRight => self.buttons.d_pad_right = value,
+            Button::Unknown => {}
+        }
+    }
+
+    fn set_axis_value(&mut self, axis: gilrs::Axis, value: f32) {
+        match axis {
+            gilrs::Axis::LeftStickX => self.axises.left_stick_x = value,
+            gilrs::Axis::LeftStickY => self.axises.left_stick_y = value,
+            gilrs::Axis::LeftZ => self.axises.left_z = value,
+            gilrs::Axis::RightStickX => self.axises.right_stick_x = value,
+            gilrs::Axis::RightStickY => self.axises.right_stick_y = value,
+            gilrs::Axis::RightZ => self.axises.right_z = value,
+            gilrs::Axis::DPadX => self.axises.d_pad_x = value,
+            gilrs::Axis::DPadY => self.axises.d_pad_y = value,
+            gilrs::Axis::Unknown => {}
+        }
+    }
+}
+
+impl App {
     pub fn new() -> Self {
         Self {
             gilrs: Gilrs::new().unwrap(),
-            gamepads: [None; MAX_NUM_GAMEPADS],
             running: true,
+            gamepad: Default::default(),
         }
     }
 
     pub fn run(&mut self, terminal: &mut DefaultTerminal) -> io::Result<()> {
-        // Iterate over all connected gamepads
-        for (id, gamepad) in self.gilrs.gamepads() {
-            println!("{} {} is {:?}", id, gamepad.name(), gamepad.power_info());
-        }
-
         loop {
+            terminal.draw(|terminal| self.draw(terminal))?;
             self.handle_crossterm_events()?;
             self.handle_gamepad_events();
             if !self.running {
@@ -47,7 +125,7 @@ impl App<'_> {
     fn handle_crossterm_events(&mut self) -> io::Result<()> {
         use crossterm::event::Event as CrosstermEvent;
 
-        if !crossterm::event::poll(Duration::from_millis(10))? {
+        if !crossterm::event::poll(Duration::from_millis(1))? {
             return Ok(());
         }
 
@@ -59,22 +137,36 @@ impl App<'_> {
         Ok(())
     }
 
+    fn handle_gamepad_events(&mut self) {
+        let Some(gilrs::Event { event, .. }) = self.gilrs.next_event() else {
+            return;
+        };
+
+        match event {
+            gilrs::EventType::ButtonPressed(button, ..) => {
+                self.gamepad.set_button_value(button, true)
+            }
+            gilrs::EventType::ButtonReleased(button, ..) => {
+                self.gamepad.set_button_value(button, false)
+            }
+            gilrs::EventType::AxisChanged(axis, value, ..) => {
+                self.gamepad.set_axis_value(axis, value)
+            }
+            _ => {}
+        }
+    }
+
     fn handle_key_event(&mut self, key_event: KeyEvent) {
         if key_event.kind != KeyEventKind::Press {
             return;
         };
         match key_event.code {
             KeyCode::Char('q') => self.running = false,
+            KeyCode::Char('c') if key_event.modifiers == KeyModifiers::CONTROL => {
+                self.running = false
+            }
             _ => {}
         }
-    }
-
-    fn handle_gamepad_events(&mut self) {
-        let Some(gilrs::Event { event, .. }) = self.gilrs.next_event() else {
-            return;
-        };
-
-        println!("New event {:?}", event);
     }
 
     fn draw(&self, frame: &mut Frame) {
@@ -82,27 +174,39 @@ impl App<'_> {
     }
 }
 
-impl Widget for &App<'_> {
+impl Widget for &App {
     fn render(self, area: Rect, buf: &mut Buffer) {
-        let title = Line::from(" Counter App Tutorial ".bold());
-        let instructions = Line::from(vec![
-            " Decrement ".into(),
-            "<Left>".blue().bold(),
-            " Increment ".into(),
-            "<Right>".blue().bold(),
-            " Quit ".into(),
-            "<Q> ".blue().bold(),
-        ]);
-        let block = Block::bordered()
-            .title(title.centered())
-            .title_bottom(instructions.centered())
-            .border_set(border::THICK);
+        let title = Line::from(concat!(" ", env!("CARGO_PKG_NAME"), " ").bold());
 
-        let counter_text = Text::from(vec![Line::from(vec!["Value: ".into()])]);
+        // let debug_title = format!("{:#?}", self.active_gamepad);
+        //
+        // Paragraph::new(debug_title)
+        //     .block(Block::bordered().title(title.centered()))
+        //     .render(area, buf);
 
-        Paragraph::new(counter_text)
-            .centered()
-            .block(block)
+        Canvas::default()
+            .block(Block::bordered().title(title.centered()))
+            .x_bounds([-50., 50.])
+            .y_bounds([-50., 50.])
+            .paint(|ctx| {
+                ctx.draw(&Rectangle::new(-20., -5., 40., 12., Color::DarkGray));
+
+                let mut left_joystick = Circle::new(-10., 0., 3., Color::DarkGray);
+                ctx.draw(&left_joystick);
+                left_joystick.x += 2. * self.gamepad.axises.left_stick_x as f64;
+                left_joystick.y += 2. * self.gamepad.axises.left_stick_y as f64;
+                left_joystick.radius = 2.;
+                left_joystick.color = Color::White;
+                ctx.draw(&left_joystick);
+
+                let mut right_joystick = Circle::new(10., 0., 3., Color::DarkGray);
+                ctx.draw(&right_joystick);
+                right_joystick.x += 2. * self.gamepad.axises.right_stick_x as f64;
+                right_joystick.y += 2. * self.gamepad.axises.right_stick_y as f64;
+                right_joystick.radius = 2.;
+                right_joystick.color = Color::White;
+                ctx.draw(&right_joystick);
+            })
             .render(area, buf);
     }
 }
