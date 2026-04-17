@@ -1,6 +1,7 @@
 use crate::app::App;
 
 mod app;
+mod gamepad;
 
 fn main() -> color_eyre::Result<()> {
     color_eyre::config::HookBuilder::default()
