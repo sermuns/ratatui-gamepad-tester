@@ -169,6 +169,56 @@ impl Widget for &App {
                     HANDLE_BOTTOM_Y,
                     Color::DarkGray,
                 ));
+
+                // shoulder buttons
+                // L1
+                ctx.draw(&Rectangle::new(
+                    -CONTROLLER_TOP_X + 2.,
+                    14.,
+                    10.,
+                    2.,
+                    if self.gamepad.buttons.left_trigger {
+                        Color::Yellow
+                    } else {
+                        Color::DarkGray
+                    },
+                ));
+                ctx.draw(&Rectangle::new(
+                    -CONTROLLER_TOP_X + 5.,
+                    18.,
+                    3.,
+                    5.,
+                    if self.gamepad.buttons.left_trigger2 {
+                        Color::Yellow
+                    } else {
+                        Color::DarkGray
+                    },
+                ));
+
+                // R1
+                ctx.draw(&Rectangle::new(
+                    CONTROLLER_TOP_X - 2. - 10.,
+                    14.,
+                    10.,
+                    2.,
+                    if self.gamepad.buttons.right_trigger {
+                        Color::Yellow
+                    } else {
+                        Color::DarkGray
+                    },
+                ));
+                ctx.draw(&Rectangle::new(
+                    CONTROLLER_TOP_X - 5. - 3.,
+                    18.,
+                    3.,
+                    5.,
+                    if self.gamepad.buttons.right_trigger2 {
+                        Color::Yellow
+                    } else {
+                        Color::DarkGray
+                    },
+                ));
+
                 // d-pad
                 ctx.draw(&Circle::new(
                     -17.5,
