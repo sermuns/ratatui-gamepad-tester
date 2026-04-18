@@ -1,5 +1,11 @@
+<div align="center">
+
 # `ratatui-gamepad-tester`
+
+_a TUI app for visualizing gamepad input_
 
 [![Built With Ratatui](https://img.shields.io/badge/Built_With_Ratatui-000?logo=ratatui&logoColor=fff)](https://ratatui.rs/)
 
-https://github.com/user-attachments/assets/458d0285-2780-411b-a18e-2ffa90088e1a
+</div>
+
+![demo video](media/demo.avif)
