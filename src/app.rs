@@ -10,7 +10,7 @@ use ratatui::{
     text::ToLine,
     widgets::{
         Block, Clear, Padding, Paragraph,
-        canvas::{self, Canvas, Circle, Line as CLine, Rectangle},
+        canvas::Canvas,
     },
 };
 use std::{

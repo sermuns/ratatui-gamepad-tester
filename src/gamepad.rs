@@ -2,18 +2,8 @@ use std::time::Instant;
 
 use gilrs::{Button, GamepadId};
 use ratatui::{
-    DefaultTerminal,
-    crossterm::{
-        self,
-        event::{KeyCode, KeyEvent, KeyEventKind, KeyModifiers},
-    },
     prelude::*,
-    symbols::Marker,
-    text::ToLine,
-    widgets::{
-        Block, Clear, Padding, Paragraph,
-        canvas::{self, Canvas, Circle, Line as CLine, Rectangle},
-    },
+    widgets::canvas::{self, Circle, Line as CLine, Rectangle},
 };
 
 const KONAMI_CODE: [Button; 10] = [
