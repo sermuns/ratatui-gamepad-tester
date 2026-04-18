@@ -39,12 +39,19 @@ impl App {
     }
 
     pub fn run(&mut self, terminal: &mut DefaultTerminal) -> io::Result<()> {
+        const REDRAW_INTERVAL: Duration = Duration::from_millis(5); // source: it was revealed to me in a dream
+        let mut draw_instant: Instant = Instant::now();
+
         loop {
-            terminal.draw(|terminal| self.draw(terminal))?;
             self.handle_crossterm_events()?;
             self.handle_gamepad_events();
 
             if self.force_feedback {}
+
+            if draw_instant.elapsed() >= REDRAW_INTERVAL {
+                terminal.draw(|terminal| self.draw(terminal))?;
+                draw_instant = Instant::now();
+            }
 
             if !self.running {
                 break Ok(());
