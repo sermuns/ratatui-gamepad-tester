@@ -7,11 +7,12 @@ use ratatui::{
     },
     prelude::*,
     widgets::{
-        Block, Padding, Paragraph,
+        Block, Clear, Padding, Paragraph,
         canvas::{Canvas, Circle, Line as CLine, Rectangle},
     },
 };
 use std::{io, time::Duration};
+use tui_widgets::big_text::{BigText, PixelSize};
 
 use crate::gamepad::Gamepad;
 
@@ -24,11 +25,13 @@ pub struct App {
 
 impl App {
     pub fn new() -> Self {
+        let gamepad = Gamepad::default();
+
         Self {
             gilrs: Gilrs::new().unwrap(),
             running: true,
+            gamepad,
             show_debug_info: false,
-            gamepad: Default::default(),
         }
     }
 
@@ -87,6 +90,8 @@ impl App {
                 self.running = false
             }
             KeyCode::Char('d') => self.show_debug_info = !self.show_debug_info,
+            #[cfg(debug_assertions)]
+            KeyCode::Char('k') => self.gamepad.enter_konami_code(),
             _ => {}
         }
     }
@@ -391,6 +396,19 @@ impl Widget for &App {
                 }
             })
             .render(gamepad_area, buf);
+
+        if self.gamepad.check_if_konami_code_is_entered() {
+            let big_text = BigText::builder()
+                .lines(["KONAMI CODE ENTERED!".into()])
+                .pixel_size(PixelSize::Sextant)
+                .block(Block::bordered().padding(Padding::uniform(1)))
+                .style(Style::default().green())
+                .centered()
+                .build();
+            let big_text_area = area.centered_vertically(Constraint::Length(7));
+            Clear.render(big_text_area, buf);
+            big_text.render(big_text_area, buf);
+        }
 
         block.render(area, buf);
     }

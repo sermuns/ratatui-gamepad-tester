@@ -1,9 +1,24 @@
-use gilrs::Button;
+use gilrs::{Button, GamepadId};
+
+const KONAMI_CODE: [Button; 10] = [
+    Button::DPadUp,
+    Button::DPadUp,
+    Button::DPadDown,
+    Button::DPadDown,
+    Button::DPadLeft,
+    Button::DPadRight,
+    Button::DPadLeft,
+    Button::DPadRight,
+    Button::East,
+    Button::South,
+];
 
 #[derive(Default, Debug)]
 pub struct Gamepad {
     pub axises: Axises,
     pub buttons: Buttons,
+    button_history: [Button; KONAMI_CODE.len()],
+    button_history_index: usize,
 }
 
 impl Gamepad {
@@ -54,6 +69,19 @@ pub struct Buttons {
 }
 
 impl Gamepad {
+    pub fn check_if_konami_code_is_entered(&self) -> bool {
+        // it's a ringbuffer- allow any rotations!
+        (0..KONAMI_CODE.len()).all(|i| {
+            let wrapped_i = (self.button_history_index + i) % self.button_history.len();
+            self.button_history[wrapped_i] == KONAMI_CODE[i]
+        })
+    }
+
+    #[cfg(debug_assertions)]
+    pub fn enter_konami_code(&mut self) {
+        self.button_history = KONAMI_CODE;
+    }
+
     pub fn set_button_value(&mut self, button: Button, value: bool) {
         match button {
             Button::South => self.buttons.south = value,
@@ -76,6 +104,11 @@ impl Gamepad {
             Button::DPadLeft => self.buttons.d_pad_left = value,
             Button::DPadRight => self.buttons.d_pad_right = value,
             Button::Unknown => {}
+        }
+
+        if value {
+            self.button_history[self.button_history_index] = button;
+            self.button_history_index = (self.button_history_index + 1) % self.button_history.len();
         }
     }
 
