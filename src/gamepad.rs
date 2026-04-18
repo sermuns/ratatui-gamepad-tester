@@ -1,3 +1,5 @@
+use std::time::Instant;
+
 use gilrs::{Button, GamepadId};
 use ratatui::{
     DefaultTerminal,
@@ -32,6 +34,7 @@ pub struct Gamepad {
     pub axises: Axises,
     pub buttons: Buttons,
     pub id: Option<GamepadId>,
+    pub last_seen: Option<Instant>,
     button_history: [Button; KONAMI_CODE.len()],
     button_history_index: usize,
 }
