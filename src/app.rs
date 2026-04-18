@@ -6,6 +6,7 @@ use ratatui::{
         event::{KeyCode, KeyEvent, KeyEventKind, KeyModifiers},
     },
     prelude::*,
+    symbols::Marker,
     widgets::{
         Block, Clear, Padding, Paragraph,
         canvas::{Canvas, Circle, Line as CLine, Rectangle},
@@ -141,6 +142,7 @@ impl Widget for &App {
         Canvas::default()
             .x_bounds([-45., 45.])
             .y_bounds([-13., 25.])
+            .marker(Marker::Octant)
             .paint(|ctx| {
                 const CONTROLLER_TOP_Y: f64 = 12.;
                 const CONTROLLER_TOP_X: f64 = 23.;
