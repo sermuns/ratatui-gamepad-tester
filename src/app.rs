@@ -51,7 +51,7 @@ impl App {
             self.handle_gamepad_events();
 
             // TODO:
-            if self.force_feedback {}
+            // if self.force_feedback {}
 
             if draw_instant.elapsed() >= REDRAW_INTERVAL {
                 terminal.draw(|terminal| self.draw(terminal))?;

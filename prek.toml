@@ -17,3 +17,10 @@ name = "format code"
 language = "system"
 entry = "cargo fmt"
 pass_filenames = false
+
+[[repos.hooks]]
+id = "cargo-clippy"
+name = "lint"
+language = "system"
+entry = "cargo clippy --workspace --all-features -- -D warnings"
+pass_filenames = false
