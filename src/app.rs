@@ -125,18 +125,18 @@ impl Widget for &App {
             return;
         }
 
+        const GAMEPAD_AREA_ASPECT_RATIO: f32 = 4.8; // source: it was revealed to me in a dream
         let mut gamepad_area = block.inner(area);
-        const ASPECT_RATIO: u16 = 4;
-        let expected_height = gamepad_area.width / ASPECT_RATIO;
-        if gamepad_area.height > expected_height {
-            let padding = (gamepad_area.height - expected_height) / 2;
-            gamepad_area.y += padding;
-            gamepad_area.height = expected_height;
+
+        let target_height = (gamepad_area.width as f32 / GAMEPAD_AREA_ASPECT_RATIO) as u16;
+
+        if target_height <= gamepad_area.height {
+            gamepad_area.y += (gamepad_area.height - target_height) / 2;
+            gamepad_area.height = target_height;
         } else {
-            let expected_width = gamepad_area.height * ASPECT_RATIO;
-            let padding = (gamepad_area.width - expected_width) / 2;
-            gamepad_area.x += padding;
-            gamepad_area.width = expected_width;
+            let target_width = (gamepad_area.height as f32 * GAMEPAD_AREA_ASPECT_RATIO) as u16;
+            gamepad_area.x += (gamepad_area.width - target_width) / 2;
+            gamepad_area.width = target_width;
         }
 
         Canvas::default()
