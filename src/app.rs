@@ -365,13 +365,22 @@ impl Widget for &App {
                     },
                 ));
 
-                const JOYSTICK_MOVEMENT: f64 = 1.5;
+                const JOYSTICK_OUTER_RADIUS: f64 = 3.;
+                const JOYSTICK_MOVEMENT: f64 = 0.5 * JOYSTICK_OUTER_RADIUS;
+                const JOYSTICK_INNER_RADIUS: f64 = 0.5 * JOYSTICK_OUTER_RADIUS;
+                const JOYSTICK_X: f64 = 10.;
+                const JOYSTICK_Y: f64 = 0.;
 
-                let mut left_joystick = Circle::new(-10., 0., 3., Color::DarkGray);
+                let mut left_joystick = Circle::new(
+                    -JOYSTICK_X,
+                    JOYSTICK_Y,
+                    JOYSTICK_OUTER_RADIUS,
+                    Color::DarkGray,
+                );
                 ctx.draw(&left_joystick);
                 left_joystick.x += JOYSTICK_MOVEMENT * self.gamepad.axises.left_stick_x as f64;
                 left_joystick.y += JOYSTICK_MOVEMENT * self.gamepad.axises.left_stick_y as f64;
-                left_joystick.radius = 2.;
+                left_joystick.radius = JOYSTICK_INNER_RADIUS;
                 left_joystick.color = if self.gamepad.buttons.left_thumb {
                     Color::Yellow
                 } else if self.gamepad.left_stick_active() {
@@ -385,11 +394,16 @@ impl Widget for &App {
                     ctx.draw(&left_joystick);
                 }
 
-                let mut right_joystick = Circle::new(10., 0., 3., Color::DarkGray);
+                let mut right_joystick = Circle::new(
+                    JOYSTICK_X,
+                    JOYSTICK_Y,
+                    JOYSTICK_OUTER_RADIUS,
+                    Color::DarkGray,
+                );
                 ctx.draw(&right_joystick);
                 right_joystick.x += JOYSTICK_MOVEMENT * self.gamepad.axises.right_stick_x as f64;
                 right_joystick.y += JOYSTICK_MOVEMENT * self.gamepad.axises.right_stick_y as f64;
-                right_joystick.radius = 2.;
+                right_joystick.radius = JOYSTICK_INNER_RADIUS;
                 right_joystick.color = if self.gamepad.buttons.right_thumb {
                     Color::Yellow
                 } else if self.gamepad.right_stick_active() {
