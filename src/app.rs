@@ -305,7 +305,7 @@ impl Widget for &App {
 
                 // start/select
                 ctx.draw(&Rectangle::new(
-                    -5.,
+                    -7.,
                     5.,
                     3.,
                     1.5,
@@ -316,11 +316,23 @@ impl Widget for &App {
                     },
                 ));
                 ctx.draw(&Rectangle::new(
-                    2.,
+                    4.,
                     5.,
                     3.,
                     1.5,
                     if self.gamepad.buttons.start {
+                        Color::Yellow
+                    } else {
+                        Color::DarkGray
+                    },
+                ));
+
+                // mode (center button, ps-button, home button etc)
+                ctx.draw(&Circle::new(
+                    0.,
+                    4.,
+                    1.1,
+                    if self.gamepad.buttons.mode {
                         Color::Yellow
                     } else {
                         Color::DarkGray
