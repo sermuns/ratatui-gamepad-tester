@@ -18,6 +18,7 @@ use std::{
     time::{Duration, Instant},
 };
 use tui_widgets::big_text::{BigText, PixelSize};
+use uuid::Uuid;
 
 use crate::gamepad::Gamepad;
 
@@ -25,7 +26,7 @@ pub struct App {
     gilrs: Gilrs,
     running: bool,
     gamepad: Gamepad,
-    show_debug_info: bool,
+    show_debug_view: bool,
     force_feedback: bool,
 }
 
@@ -39,7 +40,7 @@ impl App {
             gilrs: Gilrs::new().unwrap(),
             running: true,
             gamepad,
-            show_debug_info: false,
+            show_debug_view: false,
             force_feedback: false,
         }
     }
@@ -120,7 +121,7 @@ impl App {
             KeyCode::Char('c') if key_event.modifiers == KeyModifiers::CONTROL => {
                 self.running = false
             }
-            KeyCode::Char('d') => self.show_debug_info = !self.show_debug_info,
+            KeyCode::Char('d') => self.show_debug_view = !self.show_debug_view,
             KeyCode::Char('f') => self.force_feedback = !self.force_feedback,
             #[cfg(debug_assertions)]
             KeyCode::Char('k') => self.gamepad.enter_konami_code(),
@@ -139,20 +140,40 @@ impl Widget for &App {
 
         let block = Block::bordered()
             .title(title.centered())
-            .title_bottom(" quit: 'q', debug info: 'd' ".to_line().centered())
-            .padding(Padding::horizontal(2));
+            .title_bottom(" quit: 'q', toggle debug view: 'd' ".to_line().centered())
+            .padding(Padding::proportional(1));
 
         let details_lines = if let Some(id) = self.gamepad.id {
             let gamepad = self.gilrs.gamepad(id);
             vec![
                 Line::from(vec!["Name: ".bold(), gamepad.name().to_string().into()]),
                 Line::from(vec![
-                    "Power Info: ".bold(),
+                    "Power info: ".bold(),
                     format!("{:?}", gamepad.power_info()).into(),
                 ]),
                 Line::from(vec![
-                    "Is Connected: ".bold(),
-                    gamepad.is_connected().to_string().into(),
+                    "Supports force feedback: ".bold(),
+                    gamepad.is_ff_supported().to_string().into(),
+                ]),
+                Line::from(vec![
+                    "UUID: ".bold(),
+                    Uuid::from_bytes(gamepad.uuid()).to_string().into(),
+                ]),
+                Line::from(vec![
+                    "Product ID: ".bold(),
+                    if let Some(product_id) = gamepad.product_id() {
+                        format!("0x{:04x}", product_id).into()
+                    } else {
+                        "N/A".into()
+                    },
+                ]),
+                Line::from(vec![
+                    "Vendor ID: ".bold(),
+                    if let Some(vendor_id) = gamepad.vendor_id() {
+                        format!(" 0x{:04x}", vendor_id).into()
+                    } else {
+                        " N/A".into()
+                    },
                 ]),
             ]
         } else if self.gamepad.last_seen.is_some() {
@@ -167,6 +188,11 @@ impl Widget for &App {
             vec!["No gamepad detected.".into()]
         };
 
+        if self.show_debug_view {
+            Paragraph::new(format!("{:#?}", self.gamepad)).render(area, buf);
+            return;
+        }
+
         let [top_area, details_area] = block.inner(area).layout(&Layout::vertical([
             Constraint::Fill(1),
             Constraint::Length(details_lines.len() as u16),
@@ -174,41 +200,37 @@ impl Widget for &App {
 
         Paragraph::new(details_lines).render(details_area, buf);
 
-        if self.show_debug_info {
-            Paragraph::new(format!("{:#?}", self.gamepad)).render(top_area, buf);
+        let mut gamepad_area = top_area.inner(Margin::new(10, 5));
+        const GAMEPAD_AREA_ASPECT_RATIO: f32 = 3.5; // source: it was revealed to me in a dream
+        let target_height = (gamepad_area.width as f32 / GAMEPAD_AREA_ASPECT_RATIO) as u16;
+
+        if target_height <= gamepad_area.height {
+            gamepad_area.y += (gamepad_area.height - target_height) / 2;
+            gamepad_area.height = target_height;
         } else {
-            let mut gamepad_area = top_area.inner(Margin::new(10, 5));
-            const GAMEPAD_AREA_ASPECT_RATIO: f32 = 3.5; // source: it was revealed to me in a dream
-            let target_height = (gamepad_area.width as f32 / GAMEPAD_AREA_ASPECT_RATIO) as u16;
+            let target_width = (gamepad_area.height as f32 * GAMEPAD_AREA_ASPECT_RATIO) as u16;
+            gamepad_area.x += (gamepad_area.width - target_width) / 2;
+            gamepad_area.width = target_width;
+        }
 
-            if target_height <= gamepad_area.height {
-                gamepad_area.y += (gamepad_area.height - target_height) / 2;
-                gamepad_area.height = target_height;
-            } else {
-                let target_width = (gamepad_area.height as f32 * GAMEPAD_AREA_ASPECT_RATIO) as u16;
-                gamepad_area.x += (gamepad_area.width - target_width) / 2;
-                gamepad_area.width = target_width;
-            }
+        Canvas::default()
+            .x_bounds([-30., 30.])
+            .y_bounds([-10., 23.])
+            .marker(Marker::Octant)
+            .paint(|ctx| self.gamepad.paint_to_canvas(ctx))
+            .render(gamepad_area, buf);
 
-            Canvas::default()
-                .x_bounds([-30., 30.])
-                .y_bounds([-10., 23.])
-                .marker(Marker::Octant)
-                .paint(|ctx| self.gamepad.paint_to_canvas(ctx))
-                .render(gamepad_area, buf);
-
-            if self.gamepad.check_if_konami_code_is_entered() {
-                let big_text = BigText::builder()
-                    .lines(["KONAMI CODE ENTERED!".into()])
-                    .pixel_size(PixelSize::Sextant)
-                    .block(Block::bordered().padding(Padding::uniform(1)))
-                    .style(Style::default().green())
-                    .centered()
-                    .build();
-                let big_text_area = area.centered_vertically(Constraint::Length(7));
-                Clear.render(big_text_area, buf);
-                big_text.render(big_text_area, buf);
-            }
+        if self.gamepad.check_if_konami_code_is_entered() {
+            let big_text = BigText::builder()
+                .lines(["KONAMI CODE ENTERED!".into()])
+                .pixel_size(PixelSize::Sextant)
+                .block(Block::bordered().padding(Padding::uniform(1)))
+                .style(Style::default().green())
+                .centered()
+                .build();
+            let big_text_area = area.centered_vertically(Constraint::Length(7));
+            Clear.render(big_text_area, buf);
+            big_text.render(big_text_area, buf);
         }
 
         block.render(area, buf);

@@ -1232,6 +1232,7 @@ dependencies = [
  "gilrs",
  "ratatui",
  "tui-widgets",
+ "uuid",
 ]
 
 [[package]]
