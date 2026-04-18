@@ -372,6 +372,7 @@ impl Gamepad {
     #[cfg(debug_assertions)]
     pub fn enter_konami_code(&mut self) {
         self.button_history = KONAMI_CODE;
+        self.button_history_index = 0;
     }
 
     pub fn set_button_value(&mut self, button: Button, value: bool) {
