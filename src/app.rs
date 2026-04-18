@@ -112,7 +112,7 @@ impl Widget for &App {
         }
 
         let mut gamepad_area = block.inner(area);
-        const ASPECT_RATIO: u16 = 3;
+        const ASPECT_RATIO: u16 = 4;
         let expected_height = gamepad_area.width / ASPECT_RATIO;
         if gamepad_area.height > expected_height {
             let padding = (gamepad_area.height - expected_height) / 2;
