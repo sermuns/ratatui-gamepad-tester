@@ -197,7 +197,7 @@ impl Widget for &App {
 
         Paragraph::new(details_lines).render(details_area, buf);
 
-        let mut gamepad_area = top_area.inner(Margin::new(10, 5));
+        let mut gamepad_area = top_area.inner(Margin::new(2, 1));
         const GAMEPAD_AREA_ASPECT_RATIO: f32 = 3.5; // source: it was revealed to me in a dream
         let target_height = (gamepad_area.width as f32 / GAMEPAD_AREA_ASPECT_RATIO) as u16;
 
