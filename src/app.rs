@@ -7,7 +7,7 @@ use ratatui::{
     },
     prelude::*,
     widgets::{
-        Block, Paragraph,
+        Block, Padding, Paragraph,
         canvas::{Canvas, Circle, Line as CLine, Rectangle},
     },
 };
@@ -111,8 +111,21 @@ impl Widget for &App {
             return;
         }
 
+        let mut gamepad_area = block.inner(area);
+        const ASPECT_RATIO: u16 = 3;
+        let expected_height = gamepad_area.width / ASPECT_RATIO;
+        if gamepad_area.height > expected_height {
+            let padding = (gamepad_area.height - expected_height) / 2;
+            gamepad_area.y += padding;
+            gamepad_area.height = expected_height;
+        } else {
+            let expected_width = gamepad_area.height * ASPECT_RATIO;
+            let padding = (gamepad_area.width - expected_width) / 2;
+            gamepad_area.x += padding;
+            gamepad_area.width = expected_width;
+        }
+
         Canvas::default()
-            .block(block)
             .x_bounds([-45., 45.])
             .y_bounds([-13., 25.])
             .paint(|ctx| {
@@ -377,6 +390,8 @@ impl Widget for &App {
                     ctx.draw(&right_joystick);
                 }
             })
-            .render(area, buf);
+            .render(gamepad_area, buf);
+
+        block.render(area, buf);
     }
 }
