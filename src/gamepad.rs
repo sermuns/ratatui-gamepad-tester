@@ -17,6 +17,7 @@ const KONAMI_CODE: [Button; 10] = [
 pub struct Gamepad {
     pub axises: Axises,
     pub buttons: Buttons,
+    pub id: Option<GamepadId>,
     button_history: [Button; KONAMI_CODE.len()],
     button_history_index: usize,
 }

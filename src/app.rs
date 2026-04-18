@@ -21,6 +21,7 @@ pub struct App {
     running: bool,
     gamepad: Gamepad,
     show_debug_info: bool,
+    force_feedback: bool,
 }
 
 impl App {
@@ -32,6 +33,7 @@ impl App {
             running: true,
             gamepad,
             show_debug_info: false,
+            force_feedback: false,
         }
     }
 
@@ -40,6 +42,9 @@ impl App {
             terminal.draw(|terminal| self.draw(terminal))?;
             self.handle_crossterm_events()?;
             self.handle_gamepad_events();
+
+            if self.force_feedback {}
+
             if !self.running {
                 break Ok(());
             }
@@ -62,9 +67,11 @@ impl App {
     }
 
     fn handle_gamepad_events(&mut self) {
-        let Some(gilrs::Event { event, .. }) = self.gilrs.next_event() else {
+        let Some(gilrs::Event { id, event, .. }) = self.gilrs.next_event() else {
             return;
         };
+
+        self.gamepad.id = Some(id);
 
         match event {
             gilrs::EventType::ButtonPressed(button, ..) => {
@@ -90,6 +97,7 @@ impl App {
                 self.running = false
             }
             KeyCode::Char('d') => self.show_debug_info = !self.show_debug_info,
+            KeyCode::Char('f') => self.force_feedback = !self.force_feedback,
             #[cfg(debug_assertions)]
             KeyCode::Char('k') => self.gamepad.enter_konami_code(),
             _ => {}
