@@ -1,0 +1,19 @@
+[[repos]]
+repo = "builtin"
+
+[[repos.hooks]]
+id = "check-added-large-files"
+
+[[repos.hooks]]
+id = "check-symlinks"
+
+
+[[repos]]
+repo = "local"
+
+[[repos.hooks]]
+id = "cargo-fmt"
+name = "format code"
+language = "system"
+entry = "cargo fmt"
+pass_filenames = false

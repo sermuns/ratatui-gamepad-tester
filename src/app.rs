@@ -8,10 +8,7 @@ use ratatui::{
     prelude::*,
     symbols::Marker,
     text::ToLine,
-    widgets::{
-        Block, Clear, Padding, Paragraph,
-        canvas::Canvas,
-    },
+    widgets::{Block, Clear, Padding, Paragraph, canvas::Canvas},
 };
 use std::{
     io,
