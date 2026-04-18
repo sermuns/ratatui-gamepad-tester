@@ -35,4 +35,8 @@ jobs:
 
       - run: cargo fmt --all -- --check
 
+      - run: |
+          apt-get update
+          apt-get install -y libudev-dev
+
       - run: cargo clippy --workspace --all-features -- -D warnings
