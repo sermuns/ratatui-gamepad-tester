@@ -9,3 +9,17 @@ _a TUI app for visualizing gamepad input_
 </div>
 
 ![demo video](media/demo.avif)
+
+## Usage
+
+Install
+
+```sh
+cargo install --git https://github.com/sermuns/ratatui-gamepad-tester
+```
+
+and run it with
+
+```
+ratatui-gamepad-tester
+```
