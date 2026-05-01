@@ -14,18 +14,18 @@ jobs:
       fail-fast: false
       matrix:
         build:
-          - { OS: ubuntu.22.04, TARGET: x86_64-unknown-linux-gnu }
-          - { OS: ubuntu.22.04, TARGET: x86_64-unknown-linux-musl }
-          - { OS: ubuntu.22.04, TARGET: aarch64-unknown-linux-gnu }
-          - { OS: ubuntu.22.04, TARGET: riscv64gc-unknown-linux-gnu }
-          - { OS: ubuntu.22.04, TARGET: i686-unknown-linux-gnu }
-          - { OS: ubuntu.22.04, TARGET: i686-unknown-linux-musl }
-          - { OS: ubuntu.22.04, TARGET: aarch64-unknown-linux-musl }
-          - { OS: ubuntu.22.04, TARGET: armv5te-unknown-linux-gnueabi }
-          - { OS: ubuntu.22.04, TARGET: armv7-unknown-linux-gnueabihf }
-          - { OS: ubuntu.22.04, TARGET: arm-unknown-linux-gnueabi }
-          - { OS: ubuntu.22.04, TARGET: arm-unknown-linux-gnueabihf }
-          - { OS: ubuntu.22.04, TARGET: powerpc64le-unknown-linux-gnu }
+          - { OS: ubuntu-latest, TARGET: x86_64-unknown-linux-gnu }
+          - { OS: ubuntu-latest, TARGET: x86_64-unknown-linux-musl }
+          - { OS: ubuntu-latest, TARGET: aarch64-unknown-linux-gnu }
+          - { OS: ubuntu-latest, TARGET: riscv64gc-unknown-linux-gnu }
+          - { OS: ubuntu-latest, TARGET: i686-unknown-linux-gnu }
+          - { OS: ubuntu-latest, TARGET: i686-unknown-linux-musl }
+          - { OS: ubuntu-latest, TARGET: aarch64-unknown-linux-musl }
+          - { OS: ubuntu-latest, TARGET: armv5te-unknown-linux-gnueabi }
+          - { OS: ubuntu-latest, TARGET: armv7-unknown-linux-gnueabihf }
+          - { OS: ubuntu-latest, TARGET: arm-unknown-linux-gnueabi }
+          - { OS: ubuntu-latest, TARGET: arm-unknown-linux-gnueabihf }
+          - { OS: ubuntu-latest, TARGET: powerpc64le-unknown-linux-gnu }
           - { OS: windows-2025, TARGET: x86_64-pc-windows-msvc }
           - { OS: macos-15, TARGET: x86_64-apple-darwin }
           - { OS: macos-15, TARGET: aarch64-apple-darwin }
@@ -52,7 +52,7 @@ jobs:
           shared-key: ${{ matrix.build.TARGET }}
 
       - name: Install udev headers
-        if: matrix.build.OS == 'ubuntu.24.04'
+        if: matrix.build.OS == 'ubuntu-latest'
         run: |
           sudo apt-get update
           sudo apt-get install -y libudev-dev
