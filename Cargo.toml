@@ -2,6 +2,7 @@
 name = "ratatui-gamepad-tester"
 description = "a TUI app for visualizing gamepad input"
 license = "GPL-3.0-or-later"
+repository = "https://github.com/sermuns/ratatui-gamepad-tester"
 version = "0.1.0"
 edition = "2024"
 
