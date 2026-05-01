@@ -1,0 +1,121 @@
+name: Release
+on:
+  push:
+    tags:
+      - "*"
+
+jobs:
+  publish-github:
+    name: Publish for ${{ matrix.build.OS }} (${{ matrix.build.TARGET }})
+    runs-on: ${{ matrix.build.OS }}
+    permissions:
+      contents: write # for publishing release
+    strategy:
+      fail-fast: false
+      matrix:
+        build:
+          - { OS: ubuntu.24.04, TARGET: x86_64-unknown-linux-gnu }
+          - { OS: ubuntu.24.04, TARGET: x86_64-unknown-linux-musl }
+          - { OS: ubuntu.24.04, TARGET: aarch64-unknown-linux-gnu }
+          - { OS: ubuntu.24.04, TARGET: riscv64gc-unknown-linux-gnu }
+          - { OS: ubuntu.24.04, TARGET: i686-unknown-linux-gnu }
+          - { OS: ubuntu.24.04, TARGET: i686-unknown-linux-musl }
+          - { OS: ubuntu.24.04, TARGET: aarch64-unknown-linux-musl }
+          - { OS: ubuntu.24.04, TARGET: armv5te-unknown-linux-gnueabi }
+          - { OS: ubuntu.24.04, TARGET: armv7-unknown-linux-gnueabihf }
+          - { OS: ubuntu.24.04, TARGET: arm-unknown-linux-gnueabi }
+          - { OS: ubuntu.24.04, TARGET: arm-unknown-linux-gnueabihf }
+          - { OS: ubuntu.24.04, TARGET: powerpc64le-unknown-linux-gnu }
+          - { OS: windows-2025, TARGET: x86_64-pc-windows-msvc }
+          - { OS: macos-15, TARGET: x86_64-apple-darwin }
+          - { OS: macos-15, TARGET: aarch64-apple-darwin }
+    steps:
+      - name: Checkout the repository
+        uses: actions/checkout@v6
+        with:
+          lfs: true
+
+      - name: Set the release version and CLI name
+        shell: bash
+        run: |
+          echo "RELEASE_VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_ENV
+          echo "CLI_NAME=$(basename $PWD)" >> $GITHUB_ENV
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.build.TARGET }}
+
+      - name: Cache Cargo dependencies
+        uses: Swatinem/rust-cache@v2
+        with:
+          shared-key: ${{ matrix.build.TARGET }}
+
+      - name: Install udev headers
+        if: matrix.build.OS == 'ubuntu.24.04'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libudev-dev
+
+      - name: Build
+        run: cargo build --release --locked --target ${{ matrix.build.TARGET }}
+
+      - name: Prepare release assets
+        shell: bash
+        run: |
+          mkdir -p ${{env.CLI_NAME}}-${{env.RELEASE_VERSION}}
+          cp {LICENSE-MIT,LICENSE-APACHE,README.md,CHANGELOG.md} ${{env.CLI_NAME}}-${{env.RELEASE_VERSION}}/
+          if [ "${{ matrix.build.OS }}" = "windows-2025" ]; then
+            cp target/${{ matrix.build.TARGET }}/release/${{env.CLI_NAME}}.exe ${{env.CLI_NAME}}-${{env.RELEASE_VERSION}}/
+          else
+            cp target/${{ matrix.build.TARGET }}/release/${{env.CLI_NAME}} ${{env.CLI_NAME}}-${{env.RELEASE_VERSION}}/
+          fi
+
+      - name: Create release artifacts
+        shell: bash
+        run: |
+          if [ "${{ matrix.build.OS }}" = "windows-2025" ]; then
+            7z a -tzip "${{env.CLI_NAME}}-${{ matrix.build.TARGET }}.zip" ${{env.CLI_NAME}}-${{ env.RELEASE_VERSION }}/
+          else
+            tar -czvf ${{env.CLI_NAME}}-${{ matrix.build.TARGET }}.tar.gz ${{env.CLI_NAME}}-${{ env.RELEASE_VERSION }}/
+            shasum -a 512 ${{env.CLI_NAME}}-${{ matrix.build.TARGET }}.tar.gz > ${{env.CLI_NAME}}-${{ matrix.build.TARGET }}.tar.gz.sha512
+          fi
+
+      - name: Release notes
+        shell: bash
+        id: release-notes
+        run: |
+          echo "RELEASE_BODY<<EOF" >> $GITHUB_OUTPUT
+          sed -n '/^## \[${{ env.RELEASE_VERSION }}\].*$/,/^## /p' CHANGELOG.md | sed '$d'
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: Upload the binary releases
+        uses: svenstaro/upload-release-action@v2
+        with:
+          file: "*-${{ matrix.build.TARGET }}*"
+          file_glob: true
+          overwrite: true
+          tag: ${{ github.ref }}
+          release_name: v${{ env.RELEASE_VERSION }}
+          body: |
+            ${{ steps.release-notes.outputs.RELEASE_BODY }}
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+
+  publish-crates-io:
+    name: Publish on crates.io
+    needs: publish-github
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout the repository
+        uses: actions/checkout@v6
+        with:
+          lfs: true
+
+      - name: Install Rust stable
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache Cargo dependencies
+        uses: Swatinem/rust-cache@v2
+
+      - name: Publish
+        run: cargo publish --locked --token ${{ secrets.CARGO_REGISTRY_TOKEN }}
