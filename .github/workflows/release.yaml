@@ -14,18 +14,18 @@ jobs:
       fail-fast: false
       matrix:
         build:
-          - { OS: ubuntu.24.04, TARGET: x86_64-unknown-linux-gnu }
-          - { OS: ubuntu.24.04, TARGET: x86_64-unknown-linux-musl }
-          - { OS: ubuntu.24.04, TARGET: aarch64-unknown-linux-gnu }
-          - { OS: ubuntu.24.04, TARGET: riscv64gc-unknown-linux-gnu }
-          - { OS: ubuntu.24.04, TARGET: i686-unknown-linux-gnu }
-          - { OS: ubuntu.24.04, TARGET: i686-unknown-linux-musl }
-          - { OS: ubuntu.24.04, TARGET: aarch64-unknown-linux-musl }
-          - { OS: ubuntu.24.04, TARGET: armv5te-unknown-linux-gnueabi }
-          - { OS: ubuntu.24.04, TARGET: armv7-unknown-linux-gnueabihf }
-          - { OS: ubuntu.24.04, TARGET: arm-unknown-linux-gnueabi }
-          - { OS: ubuntu.24.04, TARGET: arm-unknown-linux-gnueabihf }
-          - { OS: ubuntu.24.04, TARGET: powerpc64le-unknown-linux-gnu }
+          - { OS: ubuntu.22.04, TARGET: x86_64-unknown-linux-gnu }
+          - { OS: ubuntu.22.04, TARGET: x86_64-unknown-linux-musl }
+          - { OS: ubuntu.22.04, TARGET: aarch64-unknown-linux-gnu }
+          - { OS: ubuntu.22.04, TARGET: riscv64gc-unknown-linux-gnu }
+          - { OS: ubuntu.22.04, TARGET: i686-unknown-linux-gnu }
+          - { OS: ubuntu.22.04, TARGET: i686-unknown-linux-musl }
+          - { OS: ubuntu.22.04, TARGET: aarch64-unknown-linux-musl }
+          - { OS: ubuntu.22.04, TARGET: armv5te-unknown-linux-gnueabi }
+          - { OS: ubuntu.22.04, TARGET: armv7-unknown-linux-gnueabihf }
+          - { OS: ubuntu.22.04, TARGET: arm-unknown-linux-gnueabi }
+          - { OS: ubuntu.22.04, TARGET: arm-unknown-linux-gnueabihf }
+          - { OS: ubuntu.22.04, TARGET: powerpc64le-unknown-linux-gnu }
           - { OS: windows-2025, TARGET: x86_64-pc-windows-msvc }
           - { OS: macos-15, TARGET: x86_64-apple-darwin }
           - { OS: macos-15, TARGET: aarch64-apple-darwin }
