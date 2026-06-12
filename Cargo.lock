@@ -1050,9 +1050,9 @@ dependencies = [
 
 [[package]]
 name = "tui-big-text"
-version = "0.8.4"
+version = "0.8.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6833ec23415d48753f28caec76fa149d0d319ebaedec77ad7d09f7e2094bee8a"
+checksum = "aee53c0f3ea334c784fa4eb8d75a66e5238d220646093f8f44fd9b34756fd8e4"
 dependencies = [
  "derive_builder",
  "font8x8",
@@ -1063,9 +1063,9 @@ dependencies = [
 
 [[package]]
 name = "tui-widgets"
-version = "0.7.2"
+version = "0.7.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1a204904071830ebc39c305f799bf892b6a94ebe7e2cc1a67509328cd2391a5d"
+checksum = "70fcbc476e5dfc3ffd351bb51f1240c4cf312ea2f99de172a17cd801302881e0"
 dependencies = [
  "document-features",
  "ratatui-core",
