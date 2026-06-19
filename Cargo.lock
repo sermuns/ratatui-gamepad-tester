@@ -497,6 +497,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "itertools"
+version = "0.15.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "8b4baf93f58d4425749ca49a51c50ebab072c5df6994d08fed93541c331481dc"
+dependencies = [
+ "either",
+]
+
+[[package]]
 name = "itoa"
 version = "1.0.18"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -812,7 +821,7 @@ dependencies = [
  "compact_str",
  "hashbrown 0.17.1",
  "indoc",
- "itertools",
+ "itertools 0.14.0",
  "kasuari",
  "lru",
  "palette",
@@ -857,7 +866,7 @@ dependencies = [
  "hashbrown 0.17.1",
  "indoc",
  "instability",
- "itertools",
+ "itertools 0.14.0",
  "line-clipping",
  "ratatui-core",
  "serde",
@@ -1141,22 +1150,22 @@ dependencies = [
 
 [[package]]
 name = "tui-big-text"
-version = "0.8.5"
+version = "0.8.8"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "aee53c0f3ea334c784fa4eb8d75a66e5238d220646093f8f44fd9b34756fd8e4"
+checksum = "9e36b4d581e4e44186f87156c1c281f066ad792551580acc0e02aa7333f769ed"
 dependencies = [
  "derive_builder",
  "font8x8",
- "itertools",
+ "itertools 0.15.0",
  "ratatui-core",
  "ratatui-widgets",
 ]
 
 [[package]]
 name = "tui-widgets"
-version = "0.7.6"
+version = "0.7.10"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "70fcbc476e5dfc3ffd351bb51f1240c4cf312ea2f99de172a17cd801302881e0"
+checksum = "a2fabceecd5dcc64af5eed8886f69cf4bbe6bbfac7e327bba225e4efeeedbb7a"
 dependencies = [
  "document-features",
  "ratatui-core",
@@ -1181,7 +1190,7 @@ version = "2.0.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "16b380a1238663e5f8a691f9039c73e1cdae598a30e9855f541d29b08b53e9a5"
 dependencies = [
- "itertools",
+ "itertools 0.14.0",
  "unicode-segmentation",
  "unicode-width",
 ]
